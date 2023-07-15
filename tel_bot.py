@@ -1,16 +1,17 @@
-from telegram.ext import CommandHandler, ApplicationBuilder
+from telegram.ext import CommandHandler, ApplicationBuilder, ContextTypes
 import requests
 import json
+from telegram import Update
 
 
 bot_token = '6282355630:AAGBE9_VcDn5QUHYxUFJPgl5wA58LBMDpro'
 
 api_url = 'http://127.0.0.1:8000/'
 
-def start(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Привет, я твой книжный бот! Я могу помочь тебе найти книги и отметить их как прочитанные.")
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="Привет, я твой книжный бот! Я могу помочь тебе найти книги и отметить их как прочитанные.")
 
-def search_books(update, context):
+async def search_books(update, context):
     tags = context.args
     if tags:
         url = api_url + 'search-books/'
@@ -27,9 +28,9 @@ def search_books(update, context):
     else:
         message = "Пожалуйста, укажите теги книг для поиска."
 
-    context.bot.send_message(chat_id=update.effective_chat.id, text=message)
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
-def mark_as_read(update, context):
+async def mark_as_read(update, context):
     if len(context.args) >= 2:
         book_id = context.args[0]
         user = context.args[1]
@@ -46,7 +47,7 @@ def mark_as_read(update, context):
     else:
         message = "Пожалуйста, укажите идентификатор книги и идентификатор пользователя."
 
-    context.bot.send_message(chat_id=update.effective_chat.id, text=message)
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
 
 
