@@ -2,9 +2,9 @@ from telegram.ext import CommandHandler, ApplicationBuilder
 import requests
 import json
 
-# Замените 'YOUR_BOT_TOKEN' на токен вашего телеграм-бота
+
 bot_token = '6282355630:AAGBE9_VcDn5QUHYxUFJPgl5wA58LBMDpro'
-# Замените 'http://your-domain.com/' на адрес вашего Django-приложения
+
 api_url = 'http://127.0.0.1:8000/'
 
 def start(update, context):
@@ -32,10 +32,10 @@ def search_books(update, context):
 def mark_as_read(update, context):
     if len(context.args) >= 2:
         book_id = context.args[0]
-        user_id = context.args[1]
+        user = context.args[1]
 
         url = api_url + 'mark-as-read/'
-        data = {'book_id': book_id, 'user_id': user_id}
+        data = {'book_id': book_id, 'user id': user}
         response = requests.post(url, data=json.dumps(data), headers={'Content-Type': 'application/json'})
         result = response.json()
 
