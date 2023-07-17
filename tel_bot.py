@@ -1,5 +1,4 @@
-from telegram.ext import CommandHandler, ApplicationBuilder, ContextTypes
-import requests
+from telegram.ext import CommandHandler, ApplicationBuilder, ContextTypes, CallbackContext
 import json
 from telegram import Update
 import logging
@@ -17,13 +16,15 @@ api_url = 'http://127.0.0.1:8000/book/'
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="Привет, я твой книжный бот! Я могу помочь тебе найти книги и отметить их как прочитанные.")
 
-async def search_books(update, context):
+async def search_books(update: Update, context: CallbackContext) -> None:
     tags = context.args
     if tags:
         url = api_url + 'search-books/'
         data = {'tags': tags}
-        response = requests.post(url, data=json.dumps(data), headers={'Content-Type': 'application/json'})
-        results = response.json()
+
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, data=json.dumps(data), headers={'Content-Type': 'application/json'}) as response:
+                results = await response.json()
 
         if 'results' in results:
             message = "Результаты поиска:\n"
@@ -36,15 +37,17 @@ async def search_books(update, context):
 
     await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
-async def mark_as_read(update, context):
+async def mark_as_read(update: Update, context: CallbackContext) -> None:
     if len(context.args) >= 2:
         book_id = context.args[0]
-        user = context.args[1]
+        user_id = context.args[1]
 
         url = api_url + 'mark-as-read/'
-        data = {'book_id': book_id, 'user id': user}
-        response = requests.post(url, data=json.dumps(data), headers={'Content-Type': 'application/json'})
-        result = response.json()
+        data = {'book_id': book_id, 'user_id': user_id}
+
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, data=json.dumps(data), headers={'Content-Type': 'application/json'}) as response:
+                result = await response.json()
 
         if 'status' in result and result['status'] == 'success':
             message = "Книга отмечена как прочитанная."
@@ -54,7 +57,6 @@ async def mark_as_read(update, context):
         message = "Пожалуйста, укажите идентификатор книги и идентификатор пользователя."
 
     await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
-
 
 
 if __name__ == '__main__':
