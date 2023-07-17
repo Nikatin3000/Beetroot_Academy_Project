@@ -2,11 +2,17 @@ from telegram.ext import CommandHandler, ApplicationBuilder, ContextTypes
 import requests
 import json
 from telegram import Update
+import logging
+import aiohttp
 
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
 
 bot_token = '6282355630:AAGBE9_VcDn5QUHYxUFJPgl5wA58LBMDpro'
 
-api_url = 'http://127.0.0.1:8000/'
+api_url = 'http://127.0.0.1:8000/book/'
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="Привет, я твой книжный бот! Я могу помочь тебе найти книги и отметить их как прочитанные.")
