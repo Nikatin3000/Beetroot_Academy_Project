@@ -16,7 +16,7 @@ class Tag(models.Model):
 
 class ReadBook(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    user_id = models.IntegerField()
     date_read = models.DateField(auto_now_add=True)
 
 

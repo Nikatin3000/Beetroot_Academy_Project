@@ -16,6 +16,31 @@ api_url = 'http://127.0.0.1:8000/book/'
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="Привет, я твой книжный бот! Я могу помочь тебе найти книги и отметить их как прочитанные.")
 
+async def book_list(update: Update, context: CallbackContext) -> None:
+    url = api_url + 'book_list/'
+
+    async with aiohttp.ClientSession() as session:
+        try:
+            async with session.get(url, headers={'Accept': 'application/json'}) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    if 'books' in data:
+                        message = "Список книг:\n"
+                        for book in data['books']:
+                            message += f"ID: {book['id']}, Название: {book['title']}, Автор: {book['author']}\n"
+                    else:
+                        message = "Книги не найдены."
+                else:
+                    message = "Произошла ошибка при получении списка книг. Пожалуйста, попробуйте еще раз позже."
+
+                await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
+        except Exception as e:
+            logging.error(f"Ошибка при получении списка книг: {e}")
+            message = "Произошла ошибка при получении списка книг. Пожалуйста, попробуйте еще раз позже."
+            await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
+
+
+
 async def search_books(update: Update, context: CallbackContext) -> None:
     tags = context.args
     if not tags:
@@ -51,7 +76,6 @@ async def mark_as_read(update: Update, context: CallbackContext) -> None:
         return
 
     book_id, user_id = context.args[:2]
-
     url = api_url + 'mark-as-read/'
     data = {'book_id': book_id, 'user_id': user_id}
 
@@ -79,9 +103,11 @@ if __name__ == '__main__':
     start_handler = CommandHandler('start', start)
     search_books_handler = CommandHandler('search', search_books)
     mark_as_read_handler = CommandHandler('markread', mark_as_read)
+    book_list_handler = CommandHandler('booklist', book_list)
 
     updater.add_handler(start_handler)
     updater.add_handler(search_books_handler)
     updater.add_handler(mark_as_read_handler)
+    updater.add_handler(book_list_handler)
 
     updater.run_polling()
