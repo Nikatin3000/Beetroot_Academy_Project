@@ -26,10 +26,15 @@ def search_books(request):
 
         results = []
         for book in books:
-            results.append({
+            book_info = {
                 'title': book.title,
                 'author': book.author,
-            })
+            }
+
+            if book.url:
+                book_info['url'] = book.url
+
+            results.append(book_info)
 
         return JsonResponse({'results': results})
 

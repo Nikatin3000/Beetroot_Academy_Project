@@ -65,7 +65,14 @@ async def search_books(update: Update, context: CallbackContext) -> None:
             if 'results' in results:
                 message = "Результаты поиска:\n"
                 for book in results['results']:
-                    message += f"Название: {book['title']}, Автор: {book['author']}\n"
+                    book_info = f"Название: {book['title']}, Автор: {book['author']}"
+
+                    if 'url' in book:
+                        book_url = book['url']
+                        book_info += f"\nURL: {book_url}"
+
+                    message += "\n" + book_info
+
             else:
                 message = "Книги с такими тегами не найдены."
 
@@ -74,7 +81,6 @@ async def search_books(update: Update, context: CallbackContext) -> None:
             logging.error(f"Ошибка при выполнении запроса поиска книг: {e}")
             message = "Произошла ошибка при выполнении запроса поиска книг. Пожалуйста, попробуйте еще раз позже."
             await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
-
 async def mark_as_read(update: Update, context: CallbackContext) -> None:
     if len(context.args) < 1:
         message = "Пожалуйста, укажите идентификатор книги."

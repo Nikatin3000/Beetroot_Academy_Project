@@ -5,6 +5,7 @@ class Book(models.Model):
     author = models.CharField(max_length=100)
     tags = models.ManyToManyField('Tag')
     date_marked = models.DateTimeField(null=True, blank=True)
+    url = models.URLField(blank=True)
 
     def __str__(self):
         return self.title
