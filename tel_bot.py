@@ -3,6 +3,7 @@ import json
 from telegram import Update
 import logging
 import aiohttp
+import datetime
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -27,7 +28,12 @@ async def book_list(update: Update, context: CallbackContext) -> None:
                     if 'books' in data:
                         message = "Список книг:\n"
                         for book in data['books']:
-                            message += f"ID: {book['id']}, Название: {book['title']}, Автор: {book['author']}\n"
+                            book_info = f"ID: {book['id']}, Название: {book['title']}, Автор: {book['author']}"
+                            if book['date_marked']:
+                                date_marked = datetime.datetime.strptime(book['date_marked'], '%Y-%m-%dT%H:%M:%S.%fZ')
+                                book_info += f", Дата прочтения: {date_marked.strftime('%d.%m.%Y %H:%M')}"
+                            message += book_info + "\n"
+
                     else:
                         message = "Книги не найдены."
                 else:
@@ -77,7 +83,11 @@ async def mark_as_read(update: Update, context: CallbackContext) -> None:
 
     book_id = context.args[0]
     url = api_url + 'mark-as-read/'
-    data = {'book_id': book_id}
+
+    # Получаем текущую дату и время
+    current_datetime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    data = {'book_id': book_id, 'date_time': current_datetime}
 
     async with aiohttp.ClientSession() as session:
         try:
@@ -85,7 +95,7 @@ async def mark_as_read(update: Update, context: CallbackContext) -> None:
                 result = await response.json()
 
             if 'status' in result and result['status'] == 'success':
-                message = "Книга отмечена как прочитанная."
+                message = f"Книга отмечена как прочитанная. Дата и время отметки: {current_datetime}"
             else:
                 message = "Не удалось отметить книгу как прочитанную."
 

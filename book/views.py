@@ -1,7 +1,8 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-from .models import Book, ReadBook
+from .models import Book  #, ReadBook
+from django.utils import timezone
 
 def book_list(request):
     books = Book.objects.all()
@@ -11,6 +12,7 @@ def book_list(request):
             'id': book.id,
             'title': book.title,
             'author': book.author,
+            'date_marked': book.date_marked
         })
     return JsonResponse({'books': book_data})
 
@@ -38,10 +40,19 @@ def mark_as_read(request):
         book_id = data['book_id']
         # user_id= data['user']
 
-        book = Book.objects.get(pk=book_id)
+        try:
+            book = Book.objects.get(pk=book_id)
 
-        read_book = ReadBook(book=book) #, user_id=user_id
-        read_book.save()
+            if not book.date_marked:  # Проверка наличия даты отметки
+                book.date_marked = timezone.now()  # Запишите текущую дату и время, если поле пустое
+                book.save()
 
-        return JsonResponse({'status': 'success'})
+                return JsonResponse({'status': 'success'})
+            else:
+                return JsonResponse({'status': 'already_marked'})  # Книга уже была отмечена ранее
+
+        except Book.DoesNotExist:
+            return JsonResponse({'status': 'book_not_found'})
+
+    return JsonResponse({'status': 'error'})
 
