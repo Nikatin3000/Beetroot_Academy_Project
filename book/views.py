@@ -36,11 +36,11 @@ def mark_as_read(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         book_id = data['book_id']
-        user_id= data['user']
+        # user_id= data['user']
 
         book = Book.objects.get(pk=book_id)
 
-        read_book = ReadBook(book=book, user_id=user_id)
+        read_book = ReadBook(book=book) #, user_id=user_id
         read_book.save()
 
         return JsonResponse({'status': 'success'})

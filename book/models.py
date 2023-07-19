@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 class Book(models.Model):
     title = models.CharField(max_length=100)
     author = models.CharField(max_length=100)
@@ -16,7 +16,7 @@ class Tag(models.Model):
 
 class ReadBook(models.Model):
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
-    user_id = models.IntegerField()
+    # user_id = models.IntegerField()
     date_read = models.DateField(auto_now_add=True)
 
 

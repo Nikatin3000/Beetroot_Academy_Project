@@ -70,14 +70,14 @@ async def search_books(update: Update, context: CallbackContext) -> None:
             await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
 async def mark_as_read(update: Update, context: CallbackContext) -> None:
-    if len(context.args) < 2:
-        message = "Пожалуйста, укажите идентификатор книги и идентификатор пользователя."
+    if len(context.args) < 1:
+        message = "Пожалуйста, укажите идентификатор книги."
         await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
         return
 
-    book_id, user_id = context.args[:2]
+    book_id = context.args[0]
     url = api_url + 'mark-as-read/'
-    data = {'book_id': book_id, 'user_id': user_id}
+    data = {'book_id': book_id}
 
     async with aiohttp.ClientSession() as session:
         try:
@@ -94,7 +94,6 @@ async def mark_as_read(update: Update, context: CallbackContext) -> None:
             logging.error(f"Ошибка при отметке книги как прочитанной: {e}")
             message = "Произошла ошибка при отметке книги как прочитанной. Пожалуйста, попробуйте еще раз позже."
             await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
-
 
 
 if __name__ == '__main__':
