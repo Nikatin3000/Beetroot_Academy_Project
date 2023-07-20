@@ -15,7 +15,7 @@ bot_token = '6282355630:AAGBE9_VcDn5QUHYxUFJPgl5wA58LBMDpro'
 api_url = 'http://127.0.0.1:8000/book/'
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="Привет, я твой книжный бот! Я могу помочь тебе найти книги и отметить их как прочитанные.")
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="Привіт, я твій книжковий бот! Я можу допомогти тобі знайти книжки та відмітити їх як прочитані.")
 
 async def book_list(update: Update, context: CallbackContext) -> None:
     url = api_url + 'book_list/'
@@ -28,21 +28,21 @@ async def book_list(update: Update, context: CallbackContext) -> None:
                     if 'books' in data:
                         message = "Список книг:\n"
                         for book in data['books']:
-                            book_info = f"ID: {book['id']}, Название: {book['title']}, Автор: {book['author']}"
+                            book_info = f"ID: {book['id']}, Назва: {book['title']}, Автор: {book['author']}"
                             if book['date_marked']:
                                 date_marked = datetime.datetime.strptime(book['date_marked'], '%Y-%m-%dT%H:%M:%S.%fZ')
-                                book_info += f", Дата прочтения: {date_marked.strftime('%d.%m.%Y %H:%M')}"
+                                book_info += f", Дата прочитання: {date_marked.strftime('%d.%m.%Y %H:%M')}"
                             message += book_info + "\n"
 
                     else:
-                        message = "Книги не найдены."
+                        message = "Книгу не знайдено."
                 else:
-                    message = "Произошла ошибка при получении списка книг. Пожалуйста, попробуйте еще раз позже."
+                    message = "Сталася помилка під час отримання списку книг. Будь ласка, спробуйте ще раз пізніше."
 
                 await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
         except Exception as e:
-            logging.error(f"Ошибка при получении списка книг: {e}")
-            message = "Произошла ошибка при получении списка книг. Пожалуйста, попробуйте еще раз позже."
+            logging.error(f"Помилка під час отримання списку книг: {e}")
+            message = "Сталася помилка під час отримання списку книг. Будь ласка, спробуйте ще раз пізніше."
             await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
 
@@ -50,7 +50,7 @@ async def book_list(update: Update, context: CallbackContext) -> None:
 async def search_books(update: Update, context: CallbackContext) -> None:
     tags = context.args
     if not tags:
-        message = "Пожалуйста, укажите теги книг для поиска."
+        message = "Будь ласка, вкажіть теги книг для пошуку."
         await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
         return
 
@@ -63,9 +63,9 @@ async def search_books(update: Update, context: CallbackContext) -> None:
                 results = await response.json()
 
             if 'results' in results:
-                message = "Результаты поиска:\n"
+                message = "Результат пошуку:\n"
                 for book in results['results']:
-                    book_info = f"Название: {book['title']}, Автор: {book['author']}"
+                    book_info = f"Назва: {book['title']}, Автор: {book['author']}"
 
                     if 'url' in book:
                         book_url = book['url']
@@ -74,16 +74,16 @@ async def search_books(update: Update, context: CallbackContext) -> None:
                     message += "\n" + book_info
 
             else:
-                message = "Книги с такими тегами не найдены."
+                message = "Книжки з такими тегами не знайдено."
 
             await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
         except Exception as e:
-            logging.error(f"Ошибка при выполнении запроса поиска книг: {e}")
-            message = "Произошла ошибка при выполнении запроса поиска книг. Пожалуйста, попробуйте еще раз позже."
+            logging.error(f"Помилка під час виконання запиту пошуку книг: {e}")
+            message = "Сталася помилка під час виконання запиту пошуку книг. Будь ласка, спробуйте ще раз пізніше."
             await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 async def mark_as_read(update: Update, context: CallbackContext) -> None:
     if len(context.args) < 1:
-        message = "Пожалуйста, укажите идентификатор книги."
+        message = "Будь ласка, вкажіть ID книги."
         await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
         return
 
@@ -101,14 +101,14 @@ async def mark_as_read(update: Update, context: CallbackContext) -> None:
                 result = await response.json()
 
             if 'status' in result and result['status'] == 'success':
-                message = f"Книга отмечена как прочитанная. Дата и время отметки: {current_datetime}"
+                message = f"Книгу відмічено як прочитану. Дата і час відмітки: {current_datetime}"
             else:
-                message = "Не удалось отметить книгу как прочитанную."
+                message = "Не вдалося відзначити книгу як прочитану."
 
             await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
         except Exception as e:
-            logging.error(f"Ошибка при отметке книги как прочитанной: {e}")
-            message = "Произошла ошибка при отметке книги как прочитанной. Пожалуйста, попробуйте еще раз позже."
+            logging.error(f"Помилка під час відмітки книги як прочитаної: {e}")
+            message = "Сталася помилка під час позначення книги як прочитаної. Будь ласка, спробуйте ще раз пізніше."
             await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
 
 
